@@ -55,4 +55,37 @@ name	VARCHAR
 role	VARCHAR
 Eclipse
 
-VS Code
+Order Items
+Column	Type
+id	BIGINT
+order_id	BIGINT
+product_id	BIGINT
+quantity	INT
+
+API Endpoints
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Author
+Satish Anbu
+Java Developer
+Experience: 3.5 Years
+Skills:
+Java
+Spring Boot
+SQL
+REST APIs
+ERP Systems
