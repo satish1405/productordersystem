@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Admin Panel</title>
+    <style>
+        body{font-family:Arial;margin:40px;}
+        input{padding:8px;margin:5px;}
+        button{padding:8px;margin:5px;}
+        table{border-collapse:collapse;margin-top:20px;}
+        td,th{border:1px solid #ccc;padding:8px;}
+    </style>
+</head>
+
+<body>
+
+<h2>Admin Product Management</h2>
+
+<button onclick="logout()">Logout</button>
+
+<h3>Add Product</h3>
+
+<input id="name" placeholder="Name">
+<input id="price" type="number" placeholder="Price">
+<input id="qty" type="number" placeholder="Quantity">
+
+<button onclick="addProduct()">Add</button>
+
+<h3>Update Product</h3>
+
+<input id="pid" type="number" placeholder="Product ID">
+<input id="newName" placeholder="New Name">
+<input id="newPrice" type="number" placeholder="New Price">
+<input id="newQty" type="number" placeholder="New Quantity">
+
+<button onclick="updateProduct()">Update</button>
+
+<h3>Products</h3>
+
+<button onclick="loadProducts()">Load Products</button>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Enabled</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody id="table"></tbody>
+
+</table>
+
+<script>
+
+    const baseURL="http://localhost:8080/api/products";
+
+    let userId=localStorage.getItem("userId");
+    let role=localStorage.getItem("role");
+
+    if(role!=="ADMIN"){
+    alert("Access denied");
+    window.location.href="login.html";
+    }
+
+    function logout(){
+    localStorage.clear();
+    window.location.href="login.html";
+    }
+
+    function addProduct(){
+
+    let data={
+    name:document.getElementById("name").value,
+    price:document.getElementById("price").value,
+    quantity:document.getElementById("qty").value
+    };
+
+    fetch(baseURL,{
+    method:"POST",
+    headers:{
+    "Content-Type":"application/json",
+    "userId":userId
+    },
+    body:JSON.stringify(data)
+    })
+    .then(async res => {
+
+    let result = await res.json();
+
+    if(!res.ok){
+    throw new Error(JSON.stringify(result));
+    }
+
+    return result;
+
+    })
+    .then(data=>{
+    alert("Product added successfully");
+    loadProducts();
+    })
+    .catch(err=>{
+    alert("Error: " + err.message);
+    });
+
+    }
+
+    function updateProduct(){
+
+    let id=document.getElementById("pid").value;
+
+    let data={
+    name:document.getElementById("newName").value,
+    price:document.getElementById("newPrice").value,
+    quantity:document.getElementById("newQty").value
+    };
+
+    fetch(baseURL+"/"+id,{
+    method:"PUT",
+    headers:{
+    "Content-Type":"application/json",
+    "userId":userId
+    },
+    body:JSON.stringify(data)
+    })
+    .then(async res => {
+
+    let result = await res.json();
+
+    if(!res.ok){
+    throw new Error(JSON.stringify(result));
+    }
+
+    return result;
+
+    })
+    .then(data=>{
+    alert("Product updated successfully");
+    loadProducts();
+    })
+    .catch(err=>{
+    alert("Error: " + err.message);
+    });
+
+    }
+    function loadProducts(){
+
+    fetch(baseURL+"/admin",{
+    headers:{
+    "userId":userId
+    }
+    })
+    .then(res=>res.json())
+    .then(products=>{
+
+    let rows="";
+
+    products.forEach(p=>{
+    rows+=`
+    <tr>
+    <td>${p.id}</td>
+    <td>${p.name}</td>
+    <td>${p.price}</td>
+    <td>${p.quantity}</td>
+    <td>${p.enabled}</td>
+    <td><button onclick="toggleProduct(${p.id})">
+    ${p.enabled ? "Disable" : "Enable"}
+    </button></td>
+    </tr>
+    `;
+    });
+
+    document.getElementById("table").innerHTML=rows;
+
+    });
+
+    }
+    function toggleProduct(id){
+
+    fetch(baseURL+"/toggle/"+id,{
+    method:"PUT",
+    headers:{
+    "userId":userId
+    }
+    })
+    .then(res=>res.json())
+    .then(data=>{
+    alert("Product status updated");
+    loadProducts();
+    })
+    .catch(err=>alert(err));
+
+    }
+</script>
+
+</body>
+</html>

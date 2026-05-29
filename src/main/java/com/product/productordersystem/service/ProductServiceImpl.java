@@ -62,4 +62,14 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.save(product);
     }
+
+
+    public Product deleteProduct(Long id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Product not found"));
+
+        productRepository.delete(product);
+        return product;
+    }
 }

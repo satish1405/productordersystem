@@ -1,5 +1,6 @@
 package com.product.productordersystem.service;
 
+import com.product.productordersystem.DTO.CartRequest;
 import com.product.productordersystem.database.*;
 import com.product.productordersystem.entity.*;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +15,12 @@ public class CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
-    public String addToCart(Long userId, Long productId, Integer qty){
+    public CartItems addToCart(Long userId, CartRequest request) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         AddCart cart = cartRepository.findByUser(user)
@@ -34,10 +35,8 @@ public class CartService {
         CartItems item = new CartItems();
         item.setCart(cart);
         item.setProduct(product);
-        item.setQuantity(qty);
+        item.setQuantity(request.getQuantity());
 
-        cartItemsRepository.save(item);
-
-        return "Product added to cart";
+        return cartItemsRepository.save(item);
     }
 }

@@ -16,4 +16,5 @@ public interface ProductService {
     List<Product> getAllProductsForAdmin();
     List<Product> getEnabledProducts();
      Product toggleProduct(Long id);
+    Product deleteProduct(Long id);
 }
